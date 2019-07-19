@@ -1,0 +1,6 @@
+name: MyPro Configs
+description: My Project Configurations
+type: module
+core: 8.x
+version: 8.x-1.0
+package: Custom

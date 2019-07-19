@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * Implement Hook_form_alter()
+ * Ref: From my previous experience
+ * 
+ */
+function mypro_configs_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+  // If form is 'system site information setting' form then add additional field named "Site API Key"
+  if ($form_id == 'system_site_information_settings') {
+    // Get 'Site API Key' value from congfis settings if already saved
+    $site_api_key = \Drupal::config('mypro_configs.settings')
+      ->get('siteapikey');
+    // If Site API Keys not exists then set default key
+    $site_api_key = !empty($site_api_key) ? $site_api_key : 'No API Key yet';
+
+    // Add new "Site API Key" field in the same form
+    $form['site_api_key'] = [
+      '#type' => 'textfield',
+      '#title' => t('Site API Key'),
+      '#default_value' => $site_api_key,
+    ];
+
+    // Update submit button value
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => t('Update Configuration'),
+    ];
+
+    // Add submit handler to save Site API Key values
+    $form['#submit'][] = '_site_api_key_submit';
+  }
+}
+
+/**
+ * Custom submit handler for System Site Information Settings form
+ */
+function _site_api_key_submit(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  // Get value of 'site_api_keys' field
+  $site_api_key = $form_state->getValue('site_api_key');
+
+  try {
+    // Save 'Site API Keys'
+    \Drupal::service('config.factory')->getEditable('mypro_configs.settings')
+      ->set('siteapikey', $site_api_key)
+      ->save();
+
+    // Show success message after saving data
+    drupal_set_message('Site API Key has been saved with the value ' . $site_api_key);
+  }
+  catch (Exception $e) {
+    // Show error message if any
+    drupal_set_message($e->getMessage(), 'error');
+  }
+}

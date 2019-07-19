@@ -1,0 +1,6 @@
+mypro_configs.site_api_url:
+    path: '/page_json/{site_api_key}/{nid}'
+    defaults:
+        _controller: 'Drupal\mypro_configs\Controller\MyproController::pageData'
+    requirements:
+        _permission: 'access content'
